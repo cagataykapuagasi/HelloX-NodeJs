@@ -13,15 +13,19 @@ module.exports = {
 };
 
 async function login({ username, password }) {
-  const user = await User.findOne({ username });
+  return new Promise(async (resolve, reject) => {
+    const user = await User.findOne({ username });
 
-  return new Promise((resolve, reject) => {
     if (user && bcrypt.compareSync(password, user.hash)) {
-      const { hash, ...userWithoutHash } = user.toObject();
+      const { hash, __v, _id, ...other } = user.toJSON();
       const token = jwt.sign({ sub: user.id }, config.secret);
-      resolve(...userWithoutHash, token);
+
+      resolve(other, token);
+    } else if (user) {
+      reject("Password is incorrect");
     }
-    reject("Username or password is incorrect");
+
+    reject("Username is incorrect");
   });
 }
 
@@ -38,7 +42,8 @@ async function getUser(id) {
 async function register(userParam) {
   return new Promise(async (resolve, reject) => {
     if (await User.findOne({ username: userParam.username })) {
-      reject('Username "' + userParam.username + '" is already taken');
+      reject(`Username ${userParam.username} is already taken`);
+      return;
     }
 
     const user = new User(userParam);
@@ -57,6 +62,7 @@ async function update(id, userParam) {
   return new Promise(async (resolve, reject) => {
     if (!user) {
       reject("User not found");
+      return;
     }
 
     if (
@@ -64,6 +70,7 @@ async function update(id, userParam) {
       (await User.findOne({ username: userParam.username }))
     ) {
       reject('Username "' + userParam.username + '" is already taken');
+      return;
     }
 
     userParam.hash = bcrypt.hashSync(userParam.password, 10);
