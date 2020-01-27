@@ -1,6 +1,5 @@
 const config = require("../config.json");
 const jwt = require("jsonwebtoken");
-const bcrypt = require("bcryptjs");
 const db = require("../db/db");
 const User = db.User;
 const userHandler = require("../handlers/Data");
@@ -11,6 +10,7 @@ module.exports = {
   getUser,
   register,
   update,
+  updatePassword,
   remove
 };
 
@@ -19,17 +19,15 @@ async function login({ username, password }) {
     const user = await User.findOne({ username });
 
     if (user && user.validPassword(password)) {
-      //const { hash, __v, _id, salt, ...other } = user.toJSON();
       const token = jwt.sign({ sub: user.id }, config.secret);
-
       const data = userHandler(user, token);
 
       resolve(data);
     } else if (user) {
-      reject("Password is incorrect");
+      reject("Password is incorrect.");
     }
 
-    reject("Username is incorrect");
+    reject("Username is incorrect.");
   });
 }
 
@@ -44,7 +42,7 @@ async function getUser(req) {
 async function register(userParam) {
   return new Promise(async (resolve, reject) => {
     if (await User.findOne({ username: userParam.username })) {
-      reject(`Username '${userParam.username}' is already taken`);
+      reject(`Username '${userParam.username}' is already taken.`);
       return;
     }
 
@@ -71,7 +69,7 @@ async function update(req) {
           user.username === body.username &&
           (await User.findOne({ username: body.username }))
         ) {
-          reject(`Username '${body.username}' is already taken`);
+          reject(`Username '${body.username}' is already taken.`);
           return;
         }
 
@@ -89,7 +87,37 @@ async function update(req) {
 
         await user.save();
       })
-      .catch(e => reject("User not found"));
+      .catch(e => reject(e));
+  });
+}
+
+async function updatePassword(req) {
+  const {
+    body,
+    userData: { sub }
+  } = req;
+
+  return new Promise((resolve, reject) => {
+    User.findById(sub)
+      .then(async user => {
+        if (!body.password) {
+          reject("Password is required.");
+          return;
+        }
+
+        if (user.validPassword(body.password)) {
+          reject("Please enter a different password.");
+          return;
+        }
+
+        body.hash = user.setPassword(body.password);
+
+        Object.assign(user, body.hash);
+        resolve("Password was updated.");
+
+        await user.save();
+      })
+      .catch(e => reject(e));
   });
 }
 

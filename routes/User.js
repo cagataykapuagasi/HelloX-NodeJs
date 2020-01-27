@@ -1,12 +1,20 @@
 const app = require("express");
 const router = app.Router();
-const { login, register, getUser, update, remove } = require("../services");
+const {
+  login,
+  register,
+  getUser,
+  update,
+  remove,
+  updatePassword
+} = require("../services");
 const Other = require("./Other");
 
 router.get("/login", Login);
 router.post("/register", Register);
 router.get("/profile", GetUser);
-router.post("/update", Update);
+router.post("/profile", Update);
+router.post("/profile/update-password", UpdatePassword);
 router.delete("/remove", Remove);
 
 //router.use("*", Other);
@@ -36,6 +44,14 @@ function Update(req, res, next) {
   console.log("update");
 
   update(req)
+    .then(user => res.send(user))
+    .catch(message => res.status(404).send({ message }));
+}
+
+function UpdatePassword(req, res, next) {
+  console.log("update-password");
+
+  updatePassword(req)
     .then(user => res.send(user))
     .catch(message => res.status(404).send({ message }));
 }
