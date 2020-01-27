@@ -44,7 +44,7 @@ async function getUser(req) {
 async function register(userParam) {
   return new Promise(async (resolve, reject) => {
     if (await User.findOne({ username: userParam.username })) {
-      reject(`Username ${userParam.username} is already taken`);
+      reject(`Username '${userParam.username}' is already taken`);
       return;
     }
 
@@ -68,10 +68,10 @@ async function update(req) {
     User.findById(sub)
       .then(async user => {
         if (
-          user.username !== body.username &&
+          user.username === body.username &&
           (await User.findOne({ username: body.username }))
         ) {
-          reject('Username "' + body.username + '" is already taken');
+          reject(`Username '${body.username}' is already taken`);
           return;
         }
 
@@ -84,7 +84,8 @@ async function update(req) {
 
         const newUser = body;
         Object.assign(user, newUser);
-        resolve(user);
+        const data = userHandler(user);
+        resolve(data);
 
         await user.save();
       })
