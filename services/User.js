@@ -122,7 +122,10 @@ async function updatePassword(req) {
 }
 
 async function remove(req) {
-  return User.findByIdAndRemove(req.userData.sub)
-    .then(res => res)
-    .catch(e => e);
+  console.log(req.userData.sub);
+  return new Promise((resolve, reject) =>
+    User.findByIdAndDelete(req.userData.sub)
+      .then(res => resolve("User was deleted."))
+      .catch(e => reject(e))
+  );
 }

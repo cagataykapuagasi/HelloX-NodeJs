@@ -15,7 +15,7 @@ router.post("/register", Register);
 router.get("/profile", GetUser);
 router.post("/profile", Update);
 router.post("/profile/update-password", UpdatePassword);
-router.delete("/remove", Remove);
+router.delete("/profile", Remove);
 
 //router.use("*", Other);
 
@@ -57,7 +57,7 @@ function UpdatePassword(req, res, next) {
 }
 
 function Remove(req, res, next) {
-  remove(req.body)
+  remove(req)
     .then(user => res.send(user))
     .catch(message => res.status(404).send({ message }));
 }
