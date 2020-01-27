@@ -35,20 +35,23 @@ async function getUser(req) {
   return new Promise(async (resolve, reject) => {
     User.findById(req.userData.sub)
       .then(user => resolve(userHandler(user)))
-      .catch(e => reject(e));
+      .catch(({ message }) => reject(message));
   });
 }
 
-async function register(userParam) {
+async function register(req) {
+  const { body } = req;
+
   return new Promise(async (resolve, reject) => {
-    if (await User.findOne({ username: userParam.username })) {
-      reject(`Username '${userParam.username}' is already taken.`);
+    if (await User.findOne({ username: body.username })) {
+      reject(`Username '${body.username}' is already taken.`);
       return;
     }
 
-    const user = new User(userParam);
-    user.setPassword(userParam.password);
-    const token = jwt.generateJWT();
+    const user = new User(body);
+
+    user.setPassword(body.password);
+    const token = jwt.sign({ sub: user.id }, config.secret);
     const data = userHandler(user, token);
     resolve(data);
 
@@ -87,7 +90,7 @@ async function update(req) {
 
         await user.save();
       })
-      .catch(e => reject(e));
+      .catch(({ message }) => reject(message));
   });
 }
 
@@ -117,7 +120,7 @@ async function updatePassword(req) {
 
         await user.save();
       })
-      .catch(e => reject(e));
+      .catch(({ message }) => reject(message));
   });
 }
 
@@ -125,7 +128,9 @@ async function remove(req) {
   console.log(req.userData.sub);
   return new Promise((resolve, reject) =>
     User.findByIdAndDelete(req.userData.sub)
-      .then(res => resolve("User was deleted."))
-      .catch(e => reject(e))
+      .then(res => {
+        resolve("User was deleted.");
+      })
+      .catch(({ message }) => reject(message))
   );
 }
