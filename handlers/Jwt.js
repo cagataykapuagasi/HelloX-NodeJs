@@ -13,6 +13,6 @@ module.exports = (req, res, next) => {
     req.userData = decoded;
     next();
   } catch (e) {
-    res.status(401).send({ message: "Unauthorized" });
+    res.status(401).send({ message: "Unauthorized." });
   }
 };

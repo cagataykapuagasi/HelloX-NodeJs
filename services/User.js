@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const db = require("../db/db");
 const User = db.User;
 const userHandler = require("../handlers/Data");
-const { userErrors } = require("../handlers/ErrorHandler");
+const { userErrors, registerErrors } = require("../handlers/ErrorHandler");
 
 module.exports = {
   login,
@@ -43,6 +43,13 @@ async function register(req) {
   const { body } = req;
 
   return new Promise(async (resolve, reject) => {
+    const error = registerErrors(body);
+
+    if (error) {
+      reject(error);
+      return;
+    }
+
     if (await User.findOne({ username: body.username })) {
       reject(`Username '${body.username}' is already taken.`);
       return;
@@ -52,10 +59,10 @@ async function register(req) {
 
     user.setPassword(body.password);
     const token = jwt.sign({ sub: user.id }, config.secret);
+    await user.save();
+
     const data = userHandler(user, token);
     resolve(data);
-
-    await user.save();
   });
 }
 
