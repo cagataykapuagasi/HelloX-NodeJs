@@ -1,6 +1,7 @@
 const app = require("express");
 const router = app.Router();
 const { login, register, getUser, update, remove } = require("../services");
+const Other = require("./Other");
 
 router.get("/login", Login);
 router.post("/register", Register);
@@ -8,7 +9,11 @@ router.get("/profile", GetUser);
 router.post("/update", Update);
 router.delete("/remove", Remove);
 
+//router.use("*", Other);
+
 function Login(req, res, next) {
+  console.log("login");
+
   login(req.body)
     .then(user => res.status(200).send(user))
     .catch(message => res.status(400).send({ message }));
@@ -21,21 +26,24 @@ function Register(req, res, next) {
 }
 
 function GetUser(req, res, next) {
-  getUser(req.body)
+  console.log("get user");
+  getUser(req)
     .then(user => res.send(user))
-    .catch(message => res.status(400).send({ message }));
+    .catch(message => res.status(404).send({ message }));
 }
 
 function Update(req, res, next) {
-  update(req.body)
+  console.log("update");
+
+  update(req)
     .then(user => res.send(user))
-    .catch(message => res.status(400).send({ message }));
+    .catch(message => res.status(404).send({ message }));
 }
 
 function Remove(req, res, next) {
   remove(req.body)
     .then(user => res.send(user))
-    .catch(message => res.status(400).send({ message }));
+    .catch(message => res.status(404).send({ message }));
 }
 
 module.exports = router;

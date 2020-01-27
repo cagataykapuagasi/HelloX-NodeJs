@@ -1,27 +1,18 @@
-const expressJwt = require("express-jwt");
-const config = require("../config.json");
-const userService = require("../services/User");
+const config = require("../config.json").secret;
+const jwt = require("jsonwebtoken");
 
-function jwt() {
-  const secret = config.secret;
-  return expressJwt({ secret, isRevoked }).unless({
-    path: [
-      // public routes that don't require authentication
-      "/user/login",
-      "/user/register"
-    ]
-  });
-}
-
-async function isRevoked(req, payload, done) {
-  const user = await userService.getById(payload.sub);
-
-  // revoke token if user no longer exists
-  if (!user) {
-    return done(null, true);
+module.exports = (req, res, next) => {
+  const { originalUrl } = req;
+  if (["/user/login", "/user/register"].includes(originalUrl)) {
+    next();
+    return;
   }
-
-  done();
-}
-
-module.exports = jwt;
+  try {
+    const token = req.headers.authorization.split(" ")[1];
+    const decoded = jwt.verify(token, config);
+    req.userData = decoded;
+    next();
+  } catch (e) {
+    res.status(401).send({ message: "Unauthorized" });
+  }
+};
