@@ -13,6 +13,10 @@ module.exports = (req, res, next) => {
     req.userData = decoded;
     next();
   } catch (e) {
-    res.status(401).send({ message: "Unauthorized." });
+    if (e.message === "jwt expired") {
+      res.status(401).send({ message: "Token was expired." });
+    } else {
+      res.status(401).send({ message: "Unauthorized." });
+    }
   }
 };

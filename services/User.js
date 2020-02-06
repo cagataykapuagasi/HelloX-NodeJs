@@ -34,7 +34,11 @@ async function login({ username, password }) {
 async function getUser(req) {
   return new Promise(async (resolve, reject) => {
     User.findById(req.userData.sub)
-      .then(user => resolve(userHandler(user)))
+      .then(user =>
+        user
+          ? resolve(userHandler(user))
+          : resolve({ message: "User not found." })
+      )
       .catch(({ message }) => reject(message));
   });
 }
@@ -56,7 +60,7 @@ async function register(req) {
     }
 
     const user = new User(body);
-
+    //{ expiresIn: 0 }
     user.setPassword(body.password);
     const token = jwt.sign({ sub: user.id }, config.secret);
     await user.save();
@@ -132,7 +136,6 @@ async function updatePassword(req) {
 }
 
 async function remove(req) {
-  console.log(req.userData.sub);
   return new Promise((resolve, reject) =>
     User.findByIdAndDelete(req.userData.sub)
       .then(res => {

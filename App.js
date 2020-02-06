@@ -9,12 +9,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(jwt);
 
 app.use("/user", User);
-app.use((err, req, res, next) => {
-  if (err.name === "UnauthorizedError") {
-    res.status(401).send({ message: "Unauthorized" });
-  }
-});
-
 app.use("*", Other);
 
 app.listen(port, () => {
