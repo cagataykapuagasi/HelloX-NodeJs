@@ -1,16 +1,20 @@
 const app = require("express")();
+var server = require("http").createServer(app);
 const bodyParser = require("body-parser");
 const port = process.env.PORT || 3000;
-const { User, Other } = require("./routes");
+const io = require("socket.io")(server);
+const { User, Other, Chat } = require("./routes");
+//const Chat = require("./routes/Chat")(io);
 const jwt = require("./handlers/Jwt");
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(jwt);
 
+app.use("/chat", Chat(io));
 app.use("/user", User);
 app.use("*", Other);
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Port: ${port}`);
 });

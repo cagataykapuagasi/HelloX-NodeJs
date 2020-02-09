@@ -1,7 +1,8 @@
 function userHandler(user, token) {
-  const { hash, __v, _id, salt, ...other } = user.toJSON();
-
-  return { token, user: other };
+  if (user) {
+    const { hash, __v, _id, salt, ...other } = user.toJSON();
+    return { token, user: other };
+  }
 }
 
 module.exports = userHandler;

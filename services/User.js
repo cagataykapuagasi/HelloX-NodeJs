@@ -33,13 +33,14 @@ async function login({ username, password }) {
 
 async function getUser(req) {
   return new Promise(async (resolve, reject) => {
-    User.findById(req.userData.sub)
-      .then(user =>
-        user
-          ? resolve(userHandler(user))
-          : resolve({ message: "User not found." })
-      )
-      .catch(({ message }) => reject(message));
+    const user = await User.findById(req.userData.sub);
+
+    if (user) {
+      resolve(userHandler(user));
+      return;
+    }
+
+    reject("User not found.");
   });
 }
 
