@@ -2,8 +2,7 @@ const config = require("../config.json").secret;
 const jwt = require("jsonwebtoken");
 
 module.exports = (req, res, next) => {
-  const { originalUrl } = req;
-  const path = originalUrl.replace(/\?.*$/, "");
+  const { path } = req;
 
   if (["/user/login", "/user/register"].includes(path)) {
     next();

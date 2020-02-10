@@ -10,7 +10,7 @@ const {
 } = require("../services");
 //const Other = require("./Other");
 
-router.get("/login", Login);
+router.post("/login", Login);
 router.post("/register", Register);
 router.get("/profile", GetUser);
 router.post("/profile", Update);
@@ -21,13 +21,13 @@ router.delete("/profile", Remove);
 
 function Login(req, res, next) {
   console.log("login");
-
   login(req.body)
     .then(user => res.status(200).send(user))
     .catch(message => res.status(400).send({ message }));
 }
 
 function Register(req, res, next) {
+  console.log("register");
   register(req)
     .then(user => res.send(user))
     .catch(message => res.status(400).send({ message }));
