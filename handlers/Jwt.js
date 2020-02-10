@@ -3,7 +3,9 @@ const jwt = require("jsonwebtoken");
 
 module.exports = (req, res, next) => {
   const { originalUrl } = req;
-  if (["/user/login", "/user/register"].includes(originalUrl)) {
+  const path = originalUrl.replace(/\?.*$/, "");
+
+  if (["/user/login", "/user/register"].includes(path)) {
     next();
     return;
   }
