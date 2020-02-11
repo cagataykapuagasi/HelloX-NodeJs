@@ -48,26 +48,17 @@ async function register(req) {
   const { body } = req;
 
   return new Promise(async (resolve, reject) => {
-    const error = registerErrors(body);
-
-    if (error) {
-      reject(error);
-      return;
+    try {
+      const user = new User(body);
+      //{ expiresIn: 0 }
+      user.setPassword(body.password);
+      const token = jwt.sign({ sub: user.id }, config.secret);
+      await user.save();
+      const data = userHandler(user, token);
+      resolve(data);
+    } catch (error) {
+      reject(error.message);
     }
-
-    if (await User.findOne({ username: body.username })) {
-      reject(`Username '${body.username}' is already taken.`);
-      return;
-    }
-
-    const user = new User(body);
-    //{ expiresIn: 0 }
-    user.setPassword(body.password);
-    const token = jwt.sign({ sub: user.id }, config.secret);
-    await user.save();
-
-    const data = userHandler(user, token);
-    resolve(data);
   });
 }
 

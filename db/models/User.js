@@ -11,9 +11,10 @@ const schema = new Schema(
       type: String,
       unique: true,
       required: [true, "can't be blank"],
-      index: true
+      index: true,
+      minlength: 3
     },
-    hash: { type: String, required: true },
+    hash: { type: String, required: true, minlength: 6 },
     email: {
       type: String,
       unique: true,
@@ -30,6 +31,12 @@ const schema = new Schema(
 );
 
 schema.methods.setPassword = function(password) {
+  console.log(password);
+  if (password.length < 5) {
+    throw new Error(
+      `password: '${password}' is shorter than the minimum allowed length 5`
+    );
+  }
   this.salt = crypto.randomBytes(16).toString("hex");
   this.hash = crypto
     .pbkdf2Sync(password, this.salt, 10000, 512, "sha512")
