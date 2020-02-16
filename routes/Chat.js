@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const config = require("../config.json").secret;
 
 let userId = null;
+let sockets = {};
 
 module.exports = function(io) {
   io.use((socket, next) => {
@@ -16,26 +17,36 @@ module.exports = function(io) {
       next();
     } catch (e) {
       socket.disconnect();
-      //next(new Error("Authentication error"));
-      //console.log(e);
+      next();
     }
   });
 
   io.on("connection", socket => {
-    console.log("a user connected.");
+    socket.sid = userId;
+    sockets[userId] = socket;
 
-    //Object.keys(io.sockets.sockets).forEach(socketid => {
-    //console.log(socketid);
-    //});
-    console.log(userId);
-    socket.on(userId, ({ text, id, type }) => {
-      console.log(text, id, type);
-      socket.emit(id, text);
-      //console.log("message", message);
-      //socket.emit("chat message", message);
-      //socket.emit("lale", "dqwjhjdqw");
-      //socket.to(id).emit("message", message);
+    socket.on("new message", ({ recipientId, message, senderId }) => {
+      if (!sockets[recipientId]) {
+        console.log(recipientId, "not online");
+      } else {
+        sockets[recipientId].emit("new message", {
+          recipientId,
+          senderId,
+          message: message
+        });
+      }
     });
+
+    socket.on("disconnect", () => {
+      console.log(socket.sid, "disconnected");
+      delete sockets[socket.sid];
+    });
+
+    // console.log(userId);
+    // socket.on(userId, ({ text, id, type }) => {
+    //   console.log(typeof id);
+    //   socket.emit(id, text);
+    // });
   });
 
   return router;
