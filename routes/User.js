@@ -4,6 +4,7 @@ const {
   login,
   register,
   getUser,
+  getUsers,
   update,
   remove,
   updatePassword
@@ -13,11 +14,10 @@ const {
 router.post("/login", Login);
 router.post("/register", Register);
 router.get("/profile", GetUser);
+router.get("*", GetUsers);
 router.post("/profile", Update);
 router.post("/profile/update-password", UpdatePassword);
 router.delete("/profile", Remove);
-
-//router.use("*", Other);
 
 function Login(req, res, next) {
   console.log("login");
@@ -36,6 +36,13 @@ function Register(req, res, next) {
 function GetUser(req, res, next) {
   console.log("get user");
   getUser(req)
+    .then(user => res.send(user))
+    .catch(message => res.status(404).send({ message }));
+}
+
+function GetUsers(req, res, next) {
+  console.log("get users");
+  getUsers()
     .then(user => res.send(user))
     .catch(message => res.status(404).send({ message }));
 }

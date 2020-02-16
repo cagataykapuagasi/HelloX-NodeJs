@@ -8,6 +8,7 @@ const { userErrors, registerErrors } = require("../handlers/ErrorHandler");
 module.exports = {
   login,
   getUser,
+  getUsers,
   register,
   update,
   updatePassword,
@@ -42,6 +43,14 @@ async function getUser(req) {
 
     reject("User not found.");
   });
+}
+
+async function getUsers() {
+  const user = await User.find();
+  if (user) {
+    return Promise.resolve(user);
+  }
+  return Promise.reject("User not found.");
 }
 
 async function register(req) {
