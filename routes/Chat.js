@@ -5,6 +5,7 @@ const config = require("../config.json").secret;
 
 let userId = null;
 let sockets = {};
+let pendingMessages = {};
 
 module.exports = function(io) {
   io.use((socket, next) => {
@@ -25,15 +26,21 @@ module.exports = function(io) {
     socket.sid = userId;
     sockets[userId] = socket;
 
+    if (pendingMessages[userId]) {
+      pendingMessages[userId].messages.forEach(message =>
+        sockets[userId].emit("new message", message)
+      );
+
+      delete pendingMessages[userId];
+    }
+
     socket.on("new message", ({ recipientId, message, senderId }) => {
+      const newMessage = { recipientId, senderId, message: message };
+
       if (!sockets[recipientId]) {
-        console.log(recipientId, "not online");
+        addToPending(recipientId, newMessage);
       } else {
-        sockets[recipientId].emit("new message", {
-          recipientId,
-          senderId,
-          message: message
-        });
+        sockets[recipientId].emit("new message", newMessage);
       }
     });
 
@@ -50,4 +57,13 @@ module.exports = function(io) {
   });
 
   return router;
+};
+
+const addToPending = (id, message) => {
+  if (pendingMessages[id]) {
+    pendingMessages[id].messages.push(message);
+  } else {
+    pendingMessages[id] = { messages: [] };
+    pendingMessages[id].messages.push(message);
+  }
 };
