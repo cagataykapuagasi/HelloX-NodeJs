@@ -13,8 +13,8 @@ const {
 
 router.post("/login", Login);
 router.post("/register", Register);
-router.get("/profile", GetUser);
 router.get("*", GetUsers);
+router.get("/profile", GetUser);
 router.post("/profile", Update);
 router.post("/profile/update-password", UpdatePassword);
 router.delete("/profile", Remove);
@@ -42,7 +42,7 @@ function GetUser(req, res, next) {
 
 function GetUsers(req, res, next) {
   console.log("get users");
-  getUsers()
+  getUsers(req)
     .then(user => res.send(user))
     .catch(message => res.status(404).send({ message }));
 }

@@ -24,25 +24,19 @@ module.exports = function(io) {
   io.on("connection", socket => {
     console.log("a user connected.");
 
-    Object.keys(io.sockets.sockets).forEach(socketid => {
-      //console.log(socketid);
-    });
-
-    socket.on("chat message", ({ id, message }) => {
-      console.log(message);
-      socket.emit("lale", "dqwjhjdqw");
+    //Object.keys(io.sockets.sockets).forEach(socketid => {
+    //console.log(socketid);
+    //});
+    console.log(userId);
+    socket.on(userId, ({ text, id, type }) => {
+      console.log(text, id, type);
+      socket.emit(id, text);
+      //console.log("message", message);
+      //socket.emit("chat message", message);
+      //socket.emit("lale", "dqwjhjdqw");
       //socket.to(id).emit("message", message);
     });
   });
-
-  router.get("*", (req, res, next) => {
-    console.warn("test");
-    io.on("connection", data => io.emit("update", { message: "Update" }));
-    //res.send({ message: "Work" });
-    //console.log("çalıştı");
-  });
-
-  //console.log("socket");
 
   return router;
 };

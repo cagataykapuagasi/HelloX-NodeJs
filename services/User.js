@@ -45,10 +45,12 @@ async function getUser(req) {
   });
 }
 
-async function getUsers() {
-  const user = await User.find();
-  if (user) {
-    return Promise.resolve(user);
+async function getUsers(req) {
+  let users = await User.find();
+
+  if (users) {
+    users = users.filter(({ id }) => id !== req.userData.sub);
+    return Promise.resolve(users);
   }
   return Promise.reject("User not found.");
 }
@@ -56,19 +58,20 @@ async function getUsers() {
 async function register(req) {
   const { body } = req;
 
-  return new Promise(async (resolve, reject) => {
-    try {
-      const user = new User(body);
-      //{ expiresIn: 0 }
-      user.setPassword(body.password);
-      const token = jwt.sign({ sub: user.id }, config.secret);
-      await user.save();
-      const data = userHandler(user, token);
-      resolve(data);
-    } catch (error) {
-      reject(error.message);
-    }
-  });
+  if (body.password.length < 6) {
+    return Promise.reject("Password must not be less than 6 characters");
+  }
+  try {
+    const user = new User(body);
+    //{ expiresIn: 0 }
+    user.setPassword(body.password);
+    const token = jwt.sign({ sub: user.id }, config.secret);
+    await user.save();
+    const data = userHandler(user, token);
+    return Promise.resolve(data);
+  } catch (error) {
+    return Promise.reject(error.message);
+  }
 }
 
 async function update(req) {
