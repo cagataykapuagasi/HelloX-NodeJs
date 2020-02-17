@@ -11,8 +11,6 @@ let pendingMessages = {};
 
 module.exports = function(io) {
   io.use((socket, next) => {
-    console.log(socket.handshake.query.token);
-
     try {
       const decoded = jwt.verify(socket.handshake.query.token, config);
       userId = decoded.sub;
@@ -27,7 +25,7 @@ module.exports = function(io) {
   io.on("connection", socket => {
     socket.sid = userId;
     sockets[userId] = socket;
-    changeStatus(true);
+    changeStatus({ id: socket.sid, status: true });
 
     if (pendingMessages[userId]) {
       pendingMessages[userId].messages.forEach(message =>
@@ -49,7 +47,7 @@ module.exports = function(io) {
 
     socket.on("disconnect", () => {
       console.log(socket.sid, "disconnected");
-      changeStatus(false);
+      changeStatus({ id: socket.sid, status: false });
       delete sockets[socket.sid];
     });
   });
@@ -66,8 +64,8 @@ const addToPending = (id, message) => {
   }
 };
 
-const changeStatus = async status => {
-  const user = await User.findById(userId);
+const changeStatus = async ({ id, status }) => {
+  const user = await User.findById(id);
 
   if (user) {
     user.status = status;

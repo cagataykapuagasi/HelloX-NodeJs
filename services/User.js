@@ -60,7 +60,7 @@ async function getRandomUser(req) {
   let users = await User.find();
 
   if (users && users.length > 1) {
-    users = users.filter(({ id }) => id !== req.userData.sub);
+    users = users.filter(({ id, status }) => id !== req.userData.sub && status);
     const user = userHandler(users[getRandomNumber(users.length - 1)]);
     return Promise.resolve(user);
   }
