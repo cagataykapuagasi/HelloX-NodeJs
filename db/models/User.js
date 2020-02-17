@@ -15,6 +15,7 @@ const schema = new Schema(
       minlength: 3
     },
     hash: { type: String, required: true },
+    status: { type: Boolean, default: false },
     email: {
       type: String,
       unique: true,

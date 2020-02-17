@@ -5,6 +5,7 @@ const {
   register,
   getUser,
   getUsers,
+  getRandomUser,
   update,
   remove,
   updatePassword
@@ -13,7 +14,8 @@ const {
 
 router.post("/login", Login);
 router.post("/register", Register);
-router.get("*", GetUsers);
+router.get("/all", GetUsers);
+router.get("/random", GetRandomUser);
 router.get("/profile", GetUser);
 router.post("/profile", Update);
 router.post("/profile/update-password", UpdatePassword);
@@ -43,6 +45,13 @@ function GetUser(req, res, next) {
 function GetUsers(req, res, next) {
   console.log("get users");
   getUsers(req)
+    .then(user => res.send(user))
+    .catch(message => res.status(404).send({ message }));
+}
+
+function GetRandomUser(req, res, next) {
+  console.log("get random user");
+  getRandomUser(req)
     .then(user => res.send(user))
     .catch(message => res.status(404).send({ message }));
 }

@@ -2,6 +2,8 @@ const app = require("express");
 const router = app.Router();
 const jwt = require("jsonwebtoken");
 const config = require("../config.json").secret;
+const db = require("../db/db");
+const User = db.User;
 
 let userId = null;
 let sockets = {};
@@ -25,6 +27,7 @@ module.exports = function(io) {
   io.on("connection", socket => {
     socket.sid = userId;
     sockets[userId] = socket;
+    changeStatus(true);
 
     if (pendingMessages[userId]) {
       pendingMessages[userId].messages.forEach(message =>
@@ -46,14 +49,9 @@ module.exports = function(io) {
 
     socket.on("disconnect", () => {
       console.log(socket.sid, "disconnected");
+      changeStatus(false);
       delete sockets[socket.sid];
     });
-
-    // console.log(userId);
-    // socket.on(userId, ({ text, id, type }) => {
-    //   console.log(typeof id);
-    //   socket.emit(id, text);
-    // });
   });
 
   return router;
@@ -65,5 +63,14 @@ const addToPending = (id, message) => {
   } else {
     pendingMessages[id] = { messages: [] };
     pendingMessages[id].messages.push(message);
+  }
+};
+
+const changeStatus = async status => {
+  const user = await User.findById(userId);
+
+  if (user) {
+    user.status = status;
+    await user.save();
   }
 };

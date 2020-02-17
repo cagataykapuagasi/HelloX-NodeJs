@@ -2,13 +2,14 @@ const config = require("../config.json");
 const jwt = require("jsonwebtoken");
 const db = require("../db/db");
 const User = db.User;
-const userHandler = require("../handlers/Data");
+const { userHandler, getRandomNumber } = require("../handlers/Data");
 const { userErrors, registerErrors } = require("../handlers/ErrorHandler");
 
 module.exports = {
   login,
   getUser,
   getUsers,
+  getRandomUser,
   register,
   update,
   updatePassword,
@@ -51,6 +52,17 @@ async function getUsers(req) {
   if (users) {
     users = users.filter(({ id }) => id !== req.userData.sub);
     return Promise.resolve(users);
+  }
+  return Promise.reject("User not found.");
+}
+
+async function getRandomUser(req) {
+  let users = await User.find();
+
+  if (users && users.length > 1) {
+    users = users.filter(({ id }) => id !== req.userData.sub);
+    const user = userHandler(users[getRandomNumber(users.length - 1)]);
+    return Promise.resolve(user);
   }
   return Promise.reject("User not found.");
 }
