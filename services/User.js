@@ -2,7 +2,11 @@ const config = require("../config.json");
 const jwt = require("jsonwebtoken");
 const db = require("../db/db");
 const User = db.User;
-const { userHandler, getRandomNumber } = require("../handlers/Data");
+const {
+  userHandler,
+  getRandomNumber,
+  userHandlerWithoutToken
+} = require("../handlers/Data");
 const { userErrors, registerErrors } = require("../handlers/ErrorHandler");
 
 module.exports = {
@@ -10,6 +14,7 @@ module.exports = {
   getUser,
   getUsers,
   getRandomUser,
+  search,
   register,
   update,
   updatePassword,
@@ -46,14 +51,16 @@ async function getUser(req) {
   });
 }
 
-async function getUsers(req) {
-  let users = await User.find();
+async function getUsers({ userData: { sub } }) {
+  return User.find({ _id: { $ne: sub } }, (err, res) => {
+    if (err) {
+      return err;
+    }
 
-  if (users) {
-    users = users.filter(({ id }) => id !== req.userData.sub);
-    return Promise.resolve(users);
-  }
-  return Promise.reject("User not found.");
+    const users = res.map(user => userHandlerWithoutToken(user));
+
+    return users;
+  });
 }
 
 async function getRandomUser(req) {
@@ -158,5 +165,23 @@ async function remove(req) {
         resolve("User was deleted.");
       })
       .catch(({ message }) => reject(message))
+  );
+}
+
+async function search({ body: { username }, userData: { sub } }) {
+  return User.find(
+    {
+      username: { $regex: username, $options: "i" },
+      _id: { $ne: sub }
+    },
+    (err, res) => {
+      if (err) {
+        return err;
+      }
+
+      const users = res.map(user => userHandlerWithoutToken(user));
+
+      return users;
+    }
   );
 }
