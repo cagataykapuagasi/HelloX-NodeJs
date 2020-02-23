@@ -63,15 +63,17 @@ async function getUsers({ userData: { sub } }) {
   });
 }
 
-async function getRandomUser(req) {
-  let users = await User.find();
+async function getRandomUser({ userData: { sub } }) {
+  let users = await User.find(
+    {
+      _id: { $ne: sub },
+      status: true
+    },
+    { salt: 0, hash: 0 }
+  );
 
-  if (users && users.length > 1) {
-    users = users.filter(({ id, status }) => id !== req.userData.sub && status);
-    const user = userHandler(users[getRandomNumber(users.length - 1)]);
-    return Promise.resolve(user);
-  }
-  return Promise.reject("User not found.");
+  const user = users[getRandomNumber(users.length - 1)];
+  return Promise.resolve(user);
 }
 
 async function register(req) {
@@ -174,14 +176,6 @@ async function search({ body: { username }, userData: { sub } }) {
       username: { $regex: username, $options: "i" },
       _id: { $ne: sub }
     },
-    (err, res) => {
-      if (err) {
-        return err;
-      }
-
-      const users = res.map(user => userHandlerWithoutToken(user));
-
-      return users;
-    }
+    { salt: 0, hash: 0 }
   );
 }
