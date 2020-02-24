@@ -11,7 +11,6 @@ const {
   remove,
   updatePassword
 } = require("../services");
-//const Other = require("./Other");
 
 router.post("/login", Login);
 router.post("/register", Register);

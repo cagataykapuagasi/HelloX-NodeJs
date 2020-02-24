@@ -1,10 +1,9 @@
 const app = require("express")();
-var server = require("http").createServer(app);
+const server = require("http").createServer(app);
 const bodyParser = require("body-parser");
 const port = process.env.PORT || 3000;
 const io = require("socket.io")(server);
 const { User, Other, Chat } = require("./routes");
-//const Chat = require("./routes/Chat")(io);
 const jwt = require("./handlers/Jwt");
 
 app.use(bodyParser.json());
