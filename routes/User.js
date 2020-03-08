@@ -8,9 +8,11 @@ const {
   getRandomUser,
   search,
   update,
+  updatePhoto,
   remove,
   updatePassword
 } = require("../services");
+const upload = require("../handlers/Multer");
 
 router.post("/login", Login);
 router.post("/register", Register);
@@ -20,6 +22,7 @@ router.post("/search", Search);
 router.get("/profile", GetUser);
 router.post("/profile", Update);
 router.post("/profile/update-password", UpdatePassword);
+router.post("/profile/update-photo", upload.single("photo"), UpdatePhoto);
 router.delete("/profile", Remove);
 
 function Login(req, res, next) {
@@ -68,6 +71,14 @@ function Update(req, res, next) {
   console.log("update");
 
   update(req)
+    .then(user => res.send(user))
+    .catch(message => res.status(404).send({ message }));
+}
+
+function UpdatePhoto(req, res, next) {
+  console.log("update photo", req.file);
+
+  updatePhoto(req)
     .then(user => res.send(user))
     .catch(message => res.status(404).send({ message }));
 }

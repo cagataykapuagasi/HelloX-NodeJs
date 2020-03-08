@@ -14,6 +14,7 @@ const schema = new Schema(
       index: true,
       minlength: 3
     },
+    profile_photo: { type: String, default: null },
     hash: { type: String, required: true },
     status: { type: Boolean, default: false },
     email: {

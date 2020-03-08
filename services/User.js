@@ -1,5 +1,6 @@
 const config = require("../config.json");
 const jwt = require("jsonwebtoken");
+const fs = require("fs");
 const db = require("../db/db");
 const User = db.User;
 const {
@@ -17,6 +18,7 @@ module.exports = {
   search,
   register,
   update,
+  updatePhoto,
   updatePassword,
   remove
 };
@@ -24,6 +26,8 @@ module.exports = {
 async function login({ username, password }) {
   return new Promise(async (resolve, reject) => {
     const user = await User.findOne({ username });
+
+    console.log(user);
 
     if (user && user.validPassword(password)) {
       const token = jwt.sign({ sub: user.id }, config.secret);
@@ -128,6 +132,27 @@ async function update(req) {
       })
       .catch(({ message }) => reject(message));
   });
+}
+
+async function updatePhoto(req) {
+  const {
+    userData: { sub },
+    file: { path },
+    protocol
+  } = req;
+  const url = `${protocol}://${req.get("host")}/${path}`;
+
+  try {
+    const user = await User.findById(sub);
+    fs.unlinkSync(
+      user.profile_photo.replace(`${protocol}://${req.get("host")}/`, "")
+    );
+    user.profile_photo = url;
+    await user.save();
+    return Promise.resolve({ message: "Photo was successfully saved." });
+  } catch ({ message }) {
+    return Promise.reject(message);
+  }
 }
 
 async function updatePassword(req) {
