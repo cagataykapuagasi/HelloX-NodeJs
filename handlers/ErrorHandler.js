@@ -22,4 +22,24 @@ const registerErrors = ({ password, username, email }) => {
   return null;
 };
 
-module.exports = { userErrors, registerErrors };
+const updatePasswordErrors = ({ user, password, new_password }) => {
+  if (password.length < 6) {
+    return { password: "Password must not be less than 6 characters." };
+  }
+  if (user.validPassword(password)) {
+    if (new_password.length < 6) {
+      return {
+        new_password: "New Password must not be less than 6 characters."
+      };
+    }
+    if (password === new_password) {
+      return {
+        new_password: "Please enter a different password."
+      };
+    }
+  } else {
+    return { password: "Password is incorrect." };
+  }
+};
+
+module.exports = { userErrors, registerErrors, updatePasswordErrors };

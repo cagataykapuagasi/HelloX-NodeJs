@@ -8,7 +8,11 @@ const {
   getRandomNumber,
   userHandlerWithoutToken
 } = require("../handlers/Data");
-const { userErrors, registerErrors } = require("../handlers/ErrorHandler");
+const {
+  userErrors,
+  registerErrors,
+  updatePasswordErrors
+} = require("../handlers/ErrorHandler");
 
 module.exports = {
   login,
@@ -35,10 +39,10 @@ async function login({ username, password }) {
 
       resolve(data);
     } else if (user) {
-      reject("Password is incorrect.");
+      reject({ password: "Password is incorrect." });
     }
 
-    reject("Username is incorrect.");
+    reject({ username: "Username is incorrect." });
   });
 }
 
@@ -157,28 +161,23 @@ async function updatePhoto(req) {
 
 async function updatePassword(req) {
   const {
-    body,
+    body: { password, new_password },
     userData: { sub }
   } = req;
+
+  console.log(password, new_password);
 
   return new Promise((resolve, reject) => {
     User.findById(sub)
       .then(async user => {
-        if (!body.password) {
-          reject("Password is required.");
-          return;
+        const error = updatePasswordErrors({ user, password, new_password });
+        if (error) {
+          return reject(error);
         }
 
-        if (user.validPassword(body.password)) {
-          reject("Please enter a different password.");
-          return;
-        }
-
-        body.hash = user.setPassword(body.password);
-
-        Object.assign(user, body.hash);
-        resolve("Password was updated.");
-
+        const hash = user.setPassword(new_password);
+        Object.assign(user, hash);
+        resolve({ message: "Password was updated." });
         await user.save();
       })
       .catch(({ message }) => reject(message));
