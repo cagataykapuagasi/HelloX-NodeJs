@@ -165,8 +165,6 @@ async function updatePassword(req) {
     userData: { sub }
   } = req;
 
-  console.log(password, new_password);
-
   return new Promise((resolve, reject) => {
     User.findById(sub)
       .then(async user => {
