@@ -21,7 +21,6 @@ module.exports = {
   getRandomUser,
   search,
   register,
-  update,
   updatePhoto,
   updatePassword,
   remove
@@ -103,41 +102,6 @@ async function register(req) {
   }
 }
 
-async function update(req) {
-  const {
-    body,
-    userData: { sub }
-  } = req;
-
-  return new Promise(async (resolve, reject) => {
-    User.findById(sub)
-      .then(async user => {
-        if (
-          user.username === body.username &&
-          (await User.findOne({ username: body.username }))
-        ) {
-          reject(`Username '${body.username}' is already taken.`);
-          return;
-        }
-
-        const error = userErrors(body);
-
-        if (error) {
-          reject(error);
-          return;
-        }
-
-        const newUser = body;
-        Object.assign(user, newUser);
-        const data = userHandler(user);
-        resolve(data);
-
-        await user.save();
-      })
-      .catch(({ message }) => reject(message));
-  });
-}
-
 async function updatePhoto(req) {
   const {
     userData: { sub },
@@ -165,31 +129,25 @@ async function updatePassword(req) {
     userData: { sub }
   } = req;
 
-  return new Promise((resolve, reject) => {
-    User.findById(sub)
-      .then(async user => {
-        const error = updatePasswordErrors({ user, password, new_password });
-        if (error) {
-          return reject(error);
-        }
+  User.findById(sub)
+    .then(async user => {
+      const error = updatePasswordErrors({ user, password, new_password });
+      if (error) {
+        return Promise.reject(error);
+      }
 
-        const hash = user.setPassword(new_password);
-        Object.assign(user, hash);
-        resolve({ message: "Password was updated." });
-        await user.save();
-      })
-      .catch(({ message }) => reject(message));
-  });
+      const hash = user.setPassword(new_password);
+      Object.assign(user, hash);
+      await user.save();
+      return Promise.resolve({ message: "Password was updated." });
+    })
+    .catch(({ message }) => Promise.reject(message));
 }
 
 async function remove(req) {
-  return new Promise((resolve, reject) =>
-    User.findByIdAndDelete(req.userData.sub)
-      .then(res => {
-        resolve("User was deleted.");
-      })
-      .catch(({ message }) => reject(message))
-  );
+  User.findByIdAndDelete(req.userData.sub)
+    .then(() => Promise.resolve("User was deleted."))
+    .catch(({ message }) => Promise.reject(message));
 }
 
 async function search({ body: { username }, userData: { sub } }) {
