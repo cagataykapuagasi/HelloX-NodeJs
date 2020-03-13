@@ -8,6 +8,7 @@ const User = db.User;
 let userId = null;
 let sockets = {};
 let pendingMessages = {};
+let subscribers = {};
 
 module.exports = function(io) {
   io.use((socket, next) => {
@@ -35,6 +36,9 @@ module.exports = function(io) {
       delete pendingMessages[userId];
     }
 
+    handleSubscription(socket);
+    informToMySubscribers({ socket, status: true });
+
     socket.on("new message", ({ recipientId, message, senderId }) => {
       const newMessage = { recipientId, senderId, message: message };
 
@@ -47,6 +51,7 @@ module.exports = function(io) {
 
     socket.on("disconnect", () => {
       console.log(socket.sid, "disconnected");
+      informToMySubscribers({ socket, status: false });
       changeStatus({ id: socket.sid, status: false });
       delete sockets[socket.sid];
     });
@@ -70,5 +75,35 @@ const changeStatus = async ({ id, status }) => {
   if (user) {
     user.status = status;
     await user.save();
+  }
+};
+
+handleSubscription = socket => {
+  socket.on("subscribe", id => {
+    if (!subscribers[id]) {
+      subscribers[id] = [];
+      subscribers[id].push(socket.sid);
+    } else {
+      subscribers[id].push(socket.sid);
+    }
+  });
+  socket.on("unsubscribe", id => {
+    if (subscribers[id]) {
+      if (subscribers[id].length < 2) {
+        delete subscribers[id];
+      } else {
+        const isSub = subscribers[id].indexOf(socket.sid);
+        if (isSub !== -1) {
+          subscribers[id].splice(isSub, 1);
+        }
+      }
+    }
+  });
+};
+
+informToMySubscribers = ({ socket, status }) => {
+  const subs = subscribers[socket.sid];
+  if (subs) {
+    subs.map(id => sockets[id] && sockets[id].emit("subscribelisten", status));
   }
 };
