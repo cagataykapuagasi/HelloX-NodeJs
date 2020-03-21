@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const server = require("http").createServer(app);
 const bodyParser = require("body-parser");
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 8080;
 const io = require("socket.io")(server);
 const { User, Other, Chat } = require("./routes");
 const jwt = require("./handlers/Jwt");
@@ -17,5 +17,5 @@ app.use("/user", User);
 app.use("*", Other);
 
 server.listen(port, () => {
-  console.log(`Port: ${port}`);
+  console.log(`Running Port: ${port}`);
 });
