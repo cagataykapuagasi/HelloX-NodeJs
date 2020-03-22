@@ -1,4 +1,3 @@
-const dbconfig = require("../config/db.json");
 const mongoose = require("mongoose");
 
 mongoose

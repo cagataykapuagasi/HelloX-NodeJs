@@ -28,6 +28,8 @@ module.exports = function(io) {
     sockets[userId] = socket;
     changeStatus({ id: socket.sid, status: true });
 
+    console.log("my", subscribers[socket.sid]);
+
     if (pendingMessages[userId]) {
       pendingMessages[userId].messages.forEach(message =>
         sockets[userId].emit("new message", message)
@@ -36,11 +38,11 @@ module.exports = function(io) {
       delete pendingMessages[userId];
     }
 
-    handleSubscription(socket);
     informToMySubscribers({ socket, status: true });
+    handleSubscription(socket);
 
-    socket.on("new message", ({ recipientId, message, senderId }) => {
-      const newMessage = { recipientId, senderId, message: message };
+    socket.on("new message", ({ recipientId, message, senderId, username }) => {
+      const newMessage = { recipientId, senderId, message, username };
 
       if (!sockets[recipientId]) {
         addToPending(recipientId, newMessage);
@@ -79,14 +81,17 @@ const changeStatus = async ({ id, status }) => {
 };
 
 handleSubscription = socket => {
-  socket.on("subscribe", id => {
+  socket.on("subscribe", async id => {
     if (!subscribers[id]) {
-      subscribers[id] = [];
-      subscribers[id].push(socket.sid);
+      subscribers[id] = [socket.sid];
     } else {
       subscribers[id].push(socket.sid);
     }
+
+    const user = await User.findById(id);
+    socket.emit("subscribelisten", user.status);
   });
+
   socket.on("unsubscribe", id => {
     if (subscribers[id]) {
       if (subscribers[id].length < 2) {
@@ -99,11 +104,30 @@ handleSubscription = socket => {
       }
     }
   });
+
+  // console.log("test", subscribers["5e4abafcd100cc3a59ec6ec9"]);
+  // console.log("test1", subscribers["5e4abfeecafb983d0d784054"]);
 };
 
 informToMySubscribers = ({ socket, status }) => {
   const subs = subscribers[socket.sid];
+  console.log("subsinfo", subs, status);
   if (subs) {
-    subs.map(id => sockets[id] && sockets[id].emit("subscribelisten", status));
+    subs.forEach(id => {
+      if (sockets[id]) {
+        console.log("array", id);
+        console.log(typeof sockets[id].emit);
+        sockets[id].emit("subscribelisten", status);
+      } else {
+        if (subs.length < 2) {
+          delete subscribers[socket.sid];
+          return;
+        }
+        const subIndex = subs.indexOf(id);
+        if (subIndex !== -1) {
+          subs.splice(subIndex, 1);
+        }
+      }
+    });
   }
 };
