@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 module.exports = (req, res, next) => {
   const { path } = req;
 
-  if (!"/user".includes(path)) {
+  if ("/user".indexOf(path) === -1) {
     next();
     return;
   }
