@@ -6,6 +6,7 @@ const port = process.env.PORT || 8080;
 const io = require("socket.io")(server);
 const { User, Other, Chat } = require("./routes");
 const jwt = require("./handlers/Jwt");
+require("dotenv").config();
 
 app.use("/uploads", express.static("uploads"));
 app.use(bodyParser.json());

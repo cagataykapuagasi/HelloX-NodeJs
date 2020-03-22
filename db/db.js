@@ -1,7 +1,8 @@
 const dbconfig = require("../config/db.json");
 const mongoose = require("mongoose");
+
 mongoose
-  .connect(dbconfig.connectionString, {
+  .connect(process.env.MONGODB_URI, {
     useCreateIndex: true,
     useNewUrlParser: true
   })
