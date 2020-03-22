@@ -112,9 +112,12 @@ async function updatePhoto(req) {
 
   try {
     const user = await User.findById(sub);
-    fs.unlinkSync(
-      user.profile_photo.replace(`${protocol}://${req.get("host")}/`, "")
-    );
+    if (user.profile_photo) {
+      fs.unlinkSync(
+        user.profile_photo.replace(`${protocol}://${req.get("host")}/`, "")
+      );
+    }
+
     user.profile_photo = url;
     await user.save();
     return Promise.resolve({ message: "Photo was successfully saved." });
