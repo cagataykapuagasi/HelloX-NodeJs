@@ -9,7 +9,7 @@ module.exports = (req, res, next) => {
     return;
   }
 
-  console.log("test log", typeof process.env.SECRET);
+  console.log("test log", typeof config);
 
   if (["/user/login", "/user/register"].includes(path)) {
     next();
