@@ -43,8 +43,8 @@ module.exports = function(io) {
     informToMySubscribers({ socket, status: true });
     handleSubscription(socket);
 
-    socket.on("new message", ({ recipientId, message, senderId, username }) => {
-      const newMessage = { recipientId, senderId, message, username };
+    socket.on("new message", ({ recipientId, ...other }) => {
+      const newMessage = { recipientId, ...other };
 
       if (!sockets[recipientId]) {
         addToPending(recipientId, newMessage);
