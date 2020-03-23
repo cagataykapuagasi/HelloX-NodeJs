@@ -115,7 +115,7 @@ async function updatePhoto(req) {
     if (user.profile_photo) {
       try {
         fs.unlinkSync(
-          user.profile_photo.replace(`${protocol}://${req.get("host")}/`, "")
+          user.profile_photo.replace(`https://${req.get("host")}/`, "")
         );
       } catch (error) {
         console.log(error);
