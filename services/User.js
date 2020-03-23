@@ -45,7 +45,7 @@ async function login({ username, password }) {
 
 async function getUser(req) {
   return new Promise(async (resolve, reject) => {
-    const user = await User.findById(req.userData.sub);
+    const user = await User.findById(req.userData.id);
 
     if (user) {
       resolve(userHandler(user));
@@ -56,8 +56,8 @@ async function getUser(req) {
   });
 }
 
-async function getUsers({ userData: { sub } }) {
-  return User.find({ _id: { $ne: sub } }, (err, res) => {
+async function getUsers({ userData: { id } }) {
+  return User.find({ _id: { $ne: id } }, (err, res) => {
     if (err) {
       return err;
     }
@@ -68,10 +68,10 @@ async function getUsers({ userData: { sub } }) {
   });
 }
 
-async function getRandomUser({ userData: { sub } }) {
+async function getRandomUser({ userData: { id } }) {
   let users = await User.find(
     {
-      _id: { $ne: sub },
+      _id: { $ne: id },
       status: true
     },
     { salt: 0, hash: 0 }
@@ -102,14 +102,14 @@ async function register(req) {
 
 async function updatePhoto(req) {
   const {
-    userData: { sub },
+    userData: { id },
     file: { path },
     protocol
   } = req;
   const url = `${protocol}://${req.get("host")}/${path}`;
 
   try {
-    const user = await User.findById(sub);
+    const user = await User.findById(id);
     if (user.profile_photo) {
       fs.unlinkSync(
         user.profile_photo.replace(`${protocol}://${req.get("host")}/`, "")
@@ -127,10 +127,10 @@ async function updatePhoto(req) {
 async function updatePassword(req) {
   const {
     body: { password, new_password },
-    userData: { sub }
+    userData: { id }
   } = req;
 
-  User.findById(sub)
+  User.findById(id)
     .then(async user => {
       const error = updatePasswordErrors({ user, password, new_password });
       if (error) {
@@ -146,16 +146,16 @@ async function updatePassword(req) {
 }
 
 async function remove(req) {
-  User.findByIdAndDelete(req.userData.sub)
+  User.findByIdAndDelete(req.userData.id)
     .then(() => Promise.resolve("User was deleted."))
     .catch(({ message }) => Promise.reject(message));
 }
 
-async function search({ body: { username }, userData: { sub } }) {
+async function search({ body: { username }, userData: { id } }) {
   return User.find(
     {
       username: { $regex: username, $options: "i" },
-      _id: { $ne: sub }
+      _id: { $ne: id }
     },
     { salt: 0, hash: 0 }
   );

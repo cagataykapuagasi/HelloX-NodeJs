@@ -18,7 +18,6 @@ module.exports = (req, res, next) => {
     req.userData = decoded;
     next();
   } catch (e) {
-    //console.log("jwt error", e);
     if (e.message === "jwt expired") {
       res.status(401).send({ message: "Token was expired." });
     } else {

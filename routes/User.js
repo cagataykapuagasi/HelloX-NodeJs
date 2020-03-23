@@ -70,7 +70,7 @@ function UpdatePhoto(req, res, next) {
 
   updatePhoto(req)
     .then(user => res.send(user))
-    .catch(message => res.status(404).send({ message }));
+    .catch(message => res.status(400).send({ message }));
 }
 
 function UpdatePassword(req, res, next) {
@@ -78,7 +78,7 @@ function UpdatePassword(req, res, next) {
 
   updatePassword(req)
     .then(user => res.send(user))
-    .catch(message => res.status(404).send({ message }));
+    .catch(message => res.status(400).send({ message }));
 }
 
 function Remove(req, res, next) {
