@@ -106,7 +106,7 @@ async function updatePhoto(req) {
     file: { path },
     protocol
   } = req;
-  const url = `${protocol}://${req.get("host")}/${path}`;
+  const url = `https://${req.get("host")}/${path}`;
 
   try {
     const user = await User.findById(id);
