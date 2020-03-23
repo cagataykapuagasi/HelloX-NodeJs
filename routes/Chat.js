@@ -16,7 +16,7 @@ module.exports = function(io) {
         socket.handshake.query.token,
         process.env.API_SECRET
       );
-      userId = decoded.sub;
+      userId = decoded.id;
       console.log(decoded);
       next();
     } catch (e) {
