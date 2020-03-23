@@ -110,6 +110,8 @@ async function updatePhoto(req) {
 
   try {
     const user = await User.findById(id);
+
+    console.log("path", user.profile_photo);
     if (user.profile_photo) {
       fs.unlinkSync(
         user.profile_photo.replace(`${protocol}://${req.get("host")}/`, "")
