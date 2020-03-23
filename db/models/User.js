@@ -3,7 +3,6 @@ const Schema = mongoose.Schema;
 const uniqueValidator = require("mongoose-unique-validator");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
-const secret = require("../../config").secret;
 
 const schema = new Schema(
   {
@@ -63,7 +62,7 @@ schema.methods.generateJWT = function() {
       username: this.username,
       exp: parseInt(exp.getTime() / 1000)
     },
-    secret
+    process.env.API_SECRET
   );
 };
 

@@ -1,5 +1,4 @@
 const jwt = require("jsonwebtoken");
-const config = require("../config.json").secret;
 
 module.exports = (req, res, next) => {
   const { path } = req;
@@ -9,19 +8,17 @@ module.exports = (req, res, next) => {
     return;
   }
 
-  console.log("test log", typeof config);
-
   if (["/user/login", "/user/register"].includes(path)) {
     next();
     return;
   }
   try {
     const token = req.headers.authorization.split(" ")[1];
-    const decoded = jwt.verify(token, config);
+    const decoded = jwt.verify(token, process.env.API_SECRET);
     req.userData = decoded;
     next();
   } catch (e) {
-    console.log("jwt errpr", e);
+    //console.log("jwt error", e);
     if (e.message === "jwt expired") {
       res.status(401).send({ message: "Token was expired." });
     } else {

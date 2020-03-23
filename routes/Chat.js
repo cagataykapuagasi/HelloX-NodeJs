@@ -1,7 +1,6 @@
 const app = require("express");
 const router = app.Router();
 const jwt = require("jsonwebtoken");
-const config = require("../config.json").secret;
 const db = require("../db/db");
 const User = db.User;
 
@@ -13,7 +12,10 @@ let subscribers = {};
 module.exports = function(io) {
   io.use((socket, next) => {
     try {
-      const decoded = jwt.verify(socket.handshake.query.token, config);
+      const decoded = jwt.verify(
+        socket.handshake.query.token,
+        process.env.API_SECRET
+      );
       userId = decoded.sub;
       console.log(decoded);
       next();

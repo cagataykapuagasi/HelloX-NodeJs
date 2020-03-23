@@ -1,5 +1,3 @@
-const config = require("../config.json");
-const jwt = require("jsonwebtoken");
 const fs = require("fs");
 const db = require("../db/db");
 const User = db.User;
@@ -33,7 +31,7 @@ async function login({ username, password }) {
     console.log(user);
 
     if (user && user.validPassword(password)) {
-      const token = jwt.sign({ sub: user.id }, config.secret);
+      const token = user.generateJWT();
       const data = userHandler(user, token);
 
       resolve(data);
@@ -93,7 +91,7 @@ async function register(req) {
     const user = new User(body);
     //{ expiresIn: 0 }
     user.setPassword(body.password);
-    const token = jwt.sign({ sub: user.id }, config.secret);
+    const token = user.generateJWT();
     await user.save();
     const data = userHandler(user, token);
     return Promise.resolve(data);
