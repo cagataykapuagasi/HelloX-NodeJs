@@ -113,9 +113,13 @@ async function updatePhoto(req) {
 
     console.log("path", user.profile_photo);
     if (user.profile_photo) {
-      fs.unlinkSync(
-        user.profile_photo.replace(`${protocol}://${req.get("host")}/`, "")
-      );
+      try {
+        fs.unlinkSync(
+          user.profile_photo.replace(`${protocol}://${req.get("host")}/`, "")
+        );
+      } catch (error) {
+        console.log(error);
+      }
     }
 
     user.profile_photo = url;
