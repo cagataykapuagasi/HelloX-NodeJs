@@ -4,12 +4,13 @@ const jwt = require("jsonwebtoken");
 const db = require("../db/db");
 const User = db.User;
 
-let userId = null;
 let sockets = {};
 let pendingMessages = {};
 let subscribers = {};
 
 module.exports = function(io) {
+  let userId = null;
+
   io.use((socket, next) => {
     try {
       const decoded = jwt.verify(
@@ -39,13 +40,13 @@ module.exports = function(io) {
       delete pendingMessages[userId];
     }
 
-    //handleSubscription(socket);
-    //informToMySubscribers({ socket, status: true });
+    handleSubscription(socket);
+    informToMySubscribers({ socket, status: true });
 
     socket.on("new message", ({ recipientId, ...other }) => {
       const newMessage = { recipientId, ...other };
 
-      console.log("alıcı:", recipientId, "gönderici: ", socket.sid);
+      //console.log("alıcı:", recipientId, "gönderici: ", socket.sid);
 
       if (!sockets[recipientId]) {
         addToPending(recipientId, newMessage);
@@ -55,8 +56,8 @@ module.exports = function(io) {
     });
 
     socket.on("disconnect", () => {
-      console.log(socket.sid, "disconnected");
-      //informToMySubscribers({ socket, status: false });
+      //console.log(socket.sid, "disconnected");
+      informToMySubscribers({ socket, status: false });
       changeStatus({ id: socket.sid, status: false });
       delete sockets[socket.sid];
     });
@@ -108,12 +109,12 @@ handleSubscription = socket => {
     }
   });
 
-  console.log("handleSubscription", subscribers[socket.sid]);
+  //console.log("handleSubscription", subscribers[socket.sid]);
 };
 
 informToMySubscribers = ({ socket, status }) => {
   const subs = subscribers[socket.sid];
-  console.log("subsinfo", subs, status, "myid", socket.sid);
+  //console.log("subsinfo", subs, status, "myid", socket.sid);
   if (subs) {
     subs.forEach(id => {
       if (sockets[id]) {
