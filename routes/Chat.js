@@ -39,8 +39,8 @@ module.exports = function(io) {
       delete pendingMessages[userId];
     }
 
-    handleSubscription(socket);
-    informToMySubscribers({ socket, status: true });
+    //handleSubscription(socket);
+    //informToMySubscribers({ socket, status: true });
 
     socket.on("new message", ({ recipientId, ...other }) => {
       const newMessage = { recipientId, ...other };
@@ -55,7 +55,7 @@ module.exports = function(io) {
 
     socket.on("disconnect", () => {
       console.log(socket.sid, "disconnected");
-      informToMySubscribers({ socket, status: false });
+      //informToMySubscribers({ socket, status: false });
       changeStatus({ id: socket.sid, status: false });
       delete sockets[socket.sid];
     });
