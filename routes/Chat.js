@@ -17,7 +17,7 @@ module.exports = function(io) {
         process.env.API_SECRET
       );
       userId = decoded.id;
-      console.log(decoded);
+      //console.log(decoded);
       next();
     } catch (e) {
       socket.disconnect();
@@ -29,8 +29,6 @@ module.exports = function(io) {
     socket.sid = userId;
     sockets[userId] = socket;
     changeStatus({ id: socket.sid, status: true });
-
-    console.log("my", subscribers[socket.sid]);
 
     if (pendingMessages[userId]) {
       pendingMessages[userId].messages.forEach(message =>
