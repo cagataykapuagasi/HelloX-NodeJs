@@ -113,7 +113,7 @@ handleSubscription = socket => {
 
 informToMySubscribers = ({ socket, status }) => {
   const subs = subscribers[socket.sid];
-  console.log("subsinfo", subs, status);
+  console.log("subsinfo", subs, status, "myid", socket.sid);
   if (subs) {
     subs.forEach(id => {
       if (sockets[id]) {
