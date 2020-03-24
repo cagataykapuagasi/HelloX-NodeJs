@@ -29,6 +29,7 @@ module.exports = function(io) {
     socket.sid = userId;
     sockets[userId] = socket;
     changeStatus({ id: socket.sid, status: true });
+    console.log(socket.sid, "connected");
 
     if (pendingMessages[userId]) {
       pendingMessages[userId].messages.forEach(message =>
@@ -38,13 +39,14 @@ module.exports = function(io) {
       delete pendingMessages[userId];
     }
 
-    informToMySubscribers({ socket, status: true });
     handleSubscription(socket);
+    informToMySubscribers({ socket, status: true });
 
     socket.on("new message", ({ recipientId, ...other }) => {
       const newMessage = { recipientId, ...other };
 
       if (!sockets[recipientId]) {
+        console.log("user offline adding pending", recipientId);
         addToPending(recipientId, newMessage);
       } else {
         sockets[recipientId].emit("new message", newMessage);
@@ -105,8 +107,7 @@ handleSubscription = socket => {
     }
   });
 
-  // console.log("test", subscribers["5e4abafcd100cc3a59ec6ec9"]);
-  // console.log("test1", subscribers["5e4abfeecafb983d0d784054"]);
+  console.log("handleSubscription", subscribers[socket.sid]);
 };
 
 informToMySubscribers = ({ socket, status }) => {
@@ -115,8 +116,6 @@ informToMySubscribers = ({ socket, status }) => {
   if (subs) {
     subs.forEach(id => {
       if (sockets[id]) {
-        console.log("array", id);
-        console.log(typeof sockets[id].emit);
         sockets[id].emit("subscribelisten", status);
       } else {
         if (subs.length < 2) {
