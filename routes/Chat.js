@@ -40,9 +40,6 @@ module.exports = function(io) {
       delete pendingMessages[userId];
     }
 
-    handleSubscription(socket);
-    informToMySubscribers({ socket, status: true });
-
     socket.on("new message", ({ recipientId, ...other }) => {
       const newMessage = { recipientId, ...other };
 
@@ -54,6 +51,9 @@ module.exports = function(io) {
         sockets[recipientId].emit("new message", newMessage);
       }
     });
+
+    handleSubscription(socket);
+    informToMySubscribers({ socket, status: true });
 
     socket.on("disconnect", () => {
       //console.log(socket.sid, "disconnected");
