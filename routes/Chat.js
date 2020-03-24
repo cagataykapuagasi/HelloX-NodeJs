@@ -45,8 +45,9 @@ module.exports = function(io) {
     socket.on("new message", ({ recipientId, ...other }) => {
       const newMessage = { recipientId, ...other };
 
+      console.log("alıcı:", recipientId, "gönderici: ", socket.sid);
+
       if (!sockets[recipientId]) {
-        console.log("user offline adding pending", recipientId);
         addToPending(recipientId, newMessage);
       } else {
         sockets[recipientId].emit("new message", newMessage);
