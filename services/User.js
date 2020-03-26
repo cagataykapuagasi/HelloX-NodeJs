@@ -15,7 +15,7 @@ const {
 module.exports = {
   login,
   getUser,
-  getUsers,
+  //getUsers,
   getRandomUser,
   search,
   register,
@@ -57,17 +57,17 @@ async function getUser(req) {
   });
 }
 
-async function getUsers({ userData: { id } }) {
-  return User.find({ _id: { $ne: id } }, (err, res) => {
-    if (err) {
-      return err;
-    }
+// async function getUsers({ userData: { id } }) {
+//   return User.find({ _id: { $ne: id } }, (err, res) => {
+//     if (err) {
+//       return err;
+//     }
 
-    const users = res.map(user => userHandlerWithoutToken(user));
+//     const users = res.map(user => userHandlerWithoutToken(user));
 
-    return users;
-  });
-}
+//     return users;
+//   });
+// }
 
 async function getRandomUser({ userData: { id } }) {
   let users = await User.find(

@@ -4,7 +4,7 @@ const {
   login,
   register,
   getUser,
-  getUsers,
+  //getUsers,
   getRandomUser,
   search,
   updateAbout,
@@ -16,7 +16,7 @@ const upload = require("../handlers/Multer");
 
 router.post("/login", Login);
 router.post("/register", Register);
-router.get("/all", GetUsers);
+//router.get("/all", GetUsers);
 router.get("/random", GetRandomUser);
 router.post("/search", Search);
 router.get("/profile", GetUser);
@@ -46,12 +46,12 @@ function GetUser(req, res, next) {
     .catch(message => res.status(404).send({ message }));
 }
 
-function GetUsers(req, res, next) {
-  console.log("get users");
-  getUsers(req)
-    .then(user => res.send(user))
-    .catch(message => res.status(404).send({ message }));
-}
+// function GetUsers(req, res, next) {
+//   console.log("get users");
+//   getUsers(req)
+//     .then(user => res.send(user))
+//     .catch(message => res.status(404).send({ message }));
+// }
 
 function GetRandomUser(req, res, next) {
   console.log("get random user");
