@@ -26,8 +26,6 @@ async function login({ username, password }) {
   return new Promise(async (resolve, reject) => {
     const user = await User.findOne({ username });
 
-    console.log(user);
-
     if (user && user.validPassword(password)) {
       const token = user.generateJWT();
       const data = userHandler(user, token);
