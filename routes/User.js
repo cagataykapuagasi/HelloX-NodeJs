@@ -4,25 +4,25 @@ const {
   login,
   register,
   getUser,
-  //getUsers,
   getRandomUser,
   search,
   updateAbout,
   updatePhoto,
   updatePassword,
+  updateLanguage,
   remove
 } = require("../services");
 const upload = require("../handlers/Multer");
 
 router.post("/login", Login);
 router.post("/register", Register);
-//router.get("/all", GetUsers);
 router.get("/random", GetRandomUser);
 router.post("/search", Search);
 router.get("/profile", GetUser);
 router.post("/profile/update-about", UpdateAbout);
 router.post("/profile/update-password", UpdatePassword);
 router.post("/profile/update-photo", upload.single("photo"), UpdatePhoto);
+router.post("/profile/update-language", UpdateLanguage);
 router.delete("/profile", Remove);
 
 function Login(req, res, next) {
@@ -46,12 +46,12 @@ function GetUser(req, res, next) {
     .catch(message => res.status(404).send({ message }));
 }
 
-// function GetUsers(req, res, next) {
-//   console.log("get users");
-//   getUsers(req)
-//     .then(user => res.send(user))
-//     .catch(message => res.status(404).send({ message }));
-// }
+function UpdateLanguage(req, res, next) {
+  console.log("update language");
+  updateLanguage(req)
+    .then(user => res.send(user))
+    .catch(message => res.status(404).send({ message }));
+}
 
 function GetRandomUser(req, res, next) {
   console.log("get random user");

@@ -1,31 +1,30 @@
 const fs = require("fs");
 const db = require("../db/db");
 const User = db.User;
-const {
-  userHandler,
-  getRandomNumber,
-  userHandlerWithoutToken
-} = require("../handlers/Data");
+const { userHandler, getRandomNumber } = require("../handlers/Data");
 const {
   userErrors,
   registerErrors,
   updatePasswordErrors
 } = require("../handlers/ErrorHandler");
+const language = require("../translations");
 
 module.exports = {
   login,
   getUser,
-  //getUsers,
   getRandomUser,
   search,
   register,
   updateAbout,
   updatePhoto,
   updatePassword,
+  updateLanguage,
   remove
 };
 
 async function login({ username, password }) {
+  const { tr, en } = language.default;
+
   return new Promise(async (resolve, reject) => {
     const user = await User.findOne({ username });
 
@@ -37,10 +36,10 @@ async function login({ username, password }) {
 
       resolve(data);
     } else if (user) {
-      reject({ password: "Password is incorrect." });
+      reject({ password: [user.language].password });
     }
 
-    reject({ username: "Username is incorrect." });
+    reject({ username: [user.language].username });
   });
 }
 
@@ -56,18 +55,6 @@ async function getUser(req) {
     reject("User not found.");
   });
 }
-
-// async function getUsers({ userData: { id } }) {
-//   return User.find({ _id: { $ne: id } }, (err, res) => {
-//     if (err) {
-//       return err;
-//     }
-
-//     const users = res.map(user => userHandlerWithoutToken(user));
-
-//     return users;
-//   });
-// }
 
 async function getRandomUser({ userData: { id } }) {
   let users = await User.find(
@@ -105,7 +92,7 @@ async function updateAbout({ body: { about }, userData: { id } }) {
   try {
     const user = await User.findById(id);
     user.about = about;
-    user.save();
+    await user.save();
     return Promise.resolve({ message: "About was successfully updated." });
   } catch ({ message }) {
     return Promise.reject(message);
@@ -161,6 +148,23 @@ async function updatePassword(req) {
       return Promise.resolve({ message: "Password was updated." });
     })
     .catch(({ message }) => Promise.reject(message));
+}
+
+async function updateLanguage({ userData: { id }, body: { language } }) {
+  try {
+    const user = await User.findById(id);
+    if (!["tr", "en"].includes(language)) {
+      return Promise.reject(
+        "Unsupported language.(Supported languages: tr, en)"
+      );
+    }
+
+    user.language = language;
+    await user.save();
+    return Promise.resolve({ message: "Language was successfully updated." });
+  } catch ({ message }) {
+    return Promise.reject(message);
+  }
 }
 
 async function remove(req) {
