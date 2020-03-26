@@ -1,4 +1,4 @@
-import tr from "./tr";
-import en from "./en.js";
+const tr = require("./tr");
+const tr = require("./en");
 
-export default language = { tr, en };
+module.exports = language = { tr, en };

@@ -23,8 +23,6 @@ module.exports = {
 };
 
 async function login({ username, password }) {
-  const { tr, en } = language.default;
-
   return new Promise(async (resolve, reject) => {
     const user = await User.findOne({ username });
 
@@ -36,10 +34,10 @@ async function login({ username, password }) {
 
       resolve(data);
     } else if (user) {
-      reject({ password: [user.language].password });
+      reject({ password: language[user.language].password });
     }
 
-    reject({ username: [user.language].username });
+    reject({ username: language[user.language].username });
   });
 }
 
