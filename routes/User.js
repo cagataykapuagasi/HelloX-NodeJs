@@ -7,6 +7,7 @@ const {
   getUsers,
   getRandomUser,
   search,
+  updateAbout,
   updatePhoto,
   updatePassword,
   remove
@@ -19,6 +20,7 @@ router.get("/all", GetUsers);
 router.get("/random", GetRandomUser);
 router.post("/search", Search);
 router.get("/profile", GetUser);
+router.post("/profile/update-about", UpdateAbout);
 router.post("/profile/update-password", UpdatePassword);
 router.post("/profile/update-photo", upload.single("photo"), UpdatePhoto);
 router.delete("/profile", Remove);
@@ -65,11 +67,19 @@ function Search(req, res, next) {
     .catch(message => res.status(400).send({ message }));
 }
 
+function UpdateAbout(req, res, next) {
+  console.log("update-about");
+
+  updateAbout(req)
+    .then(r => res.send(r))
+    .catch(message => res.status(400).send({ message }));
+}
+
 function UpdatePhoto(req, res, next) {
   console.log("update photo", req.file);
 
   updatePhoto(req)
-    .then(user => res.send(user))
+    .then(r => res.send(r))
     .catch(message => res.status(400).send({ message }));
 }
 
@@ -77,13 +87,13 @@ function UpdatePassword(req, res, next) {
   console.log("update-password");
 
   updatePassword(req)
-    .then(user => res.send(user))
+    .then(r => res.send(r))
     .catch(message => res.status(400).send({ message }));
 }
 
 function Remove(req, res, next) {
   remove(req)
-    .then(user => res.send(user))
+    .then(r => res.send(r))
     .catch(message => res.status(404).send({ message }));
 }
 

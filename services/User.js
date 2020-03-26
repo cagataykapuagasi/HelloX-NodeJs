@@ -19,6 +19,7 @@ module.exports = {
   getRandomUser,
   search,
   register,
+  updateAbout,
   updatePhoto,
   updatePassword,
   remove
@@ -97,6 +98,17 @@ async function register(req) {
     return Promise.resolve(data);
   } catch (error) {
     return Promise.reject(error.message);
+  }
+}
+
+async function updateAbout({ body: { about }, userData: { id } }) {
+  try {
+    const user = await User.findById(id);
+    user.about = about;
+    user.save();
+    return Promise.resolve({ message: "About was successfully updated." });
+  } catch ({ message }) {
+    return Promise.reject(message);
   }
 }
 
