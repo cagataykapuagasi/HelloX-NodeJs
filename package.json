@@ -2,7 +2,7 @@
   "name": "hellox",
   "version": "1.0.0",
   "main": "App.js",
-  "license": "cagatay",
+  "license": "cagataykapuagasi",
   "scripts": {
     "start": "node App.js",
     "start.dev": "nodemon"
