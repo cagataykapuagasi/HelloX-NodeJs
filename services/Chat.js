@@ -136,7 +136,7 @@ function newMessage({ recipientId, ...other }) {
   }
 }
 
-async function sendNotification({ recipientId, other }) {
+async function sendNotification({ recipientId, senderId, ...other }) {
   const user = await User.findById(recipientId);
   if (user.fcm) {
     const message = {
@@ -147,7 +147,10 @@ async function sendNotification({ recipientId, other }) {
         body: other.message
       },
       data: {
-        user: other
+        user: {
+          id: senderId,
+          ...other
+        }
       }
     };
 
