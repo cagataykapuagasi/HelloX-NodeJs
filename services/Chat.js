@@ -130,11 +130,10 @@ async function newMessage({ recipientId, ...other }) {
   if (user.fcm) {
     const message = {
       to: user.fcm,
-      collapse_key: "your_collapse_key",
 
       notification: {
-        title: "Title of your push notification",
-        body: "Body of your push notification"
+        title: user.username,
+        body: other.message
       }
     };
 
