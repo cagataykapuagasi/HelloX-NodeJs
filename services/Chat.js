@@ -8,7 +8,7 @@ var FCM = require("fcm-node");
 let sockets = {};
 let pendingMessages = {};
 let subscribers = {};
-let fcm = new FCM(env.process.FCM);
+let fcm = new FCM(process.env.FCM);
 
 module.exports = function(io) {
   let userId = null;
