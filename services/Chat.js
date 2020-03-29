@@ -132,7 +132,7 @@ async function newMessage({ recipientId, ...other }) {
       to: user.fcm,
 
       notification: {
-        title: user.username,
+        title: other.username,
         body: other.message
       }
     };
