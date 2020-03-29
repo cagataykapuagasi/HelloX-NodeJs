@@ -127,7 +127,7 @@ function informToMySubscribers({ socket, status }) {
 
 function newMessage({ recipientId, ...other }) {
   const newMessage = { recipientId, ...other };
-  sendNotification(other);
+  sendNotification({ recipientId, other });
 
   if (!sockets[recipientId]) {
     addToPending(recipientId, newMessage);
@@ -136,7 +136,7 @@ function newMessage({ recipientId, ...other }) {
   }
 }
 
-async function sendNotification(other) {
+async function sendNotification({ recipientId, other }) {
   const user = await User.findById(recipientId);
   if (user.fcm) {
     const message = {
