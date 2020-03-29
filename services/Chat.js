@@ -144,8 +144,10 @@ async function sendNotification({ recipientId, other }) {
 
       notification: {
         title: other.username,
-        body: other.message,
-        image: user.profile_photo
+        body: other.message
+      },
+      data: {
+        user: other
       }
     };
 
