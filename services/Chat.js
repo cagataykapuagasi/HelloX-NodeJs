@@ -125,7 +125,18 @@ function informToMySubscribers({ socket, status }) {
   }
 }
 
-async function newMessage({ recipientId, ...other }) {
+function newMessage({ recipientId, ...other }) {
+  const newMessage = { recipientId, ...other };
+  sendNotification(other);
+
+  if (!sockets[recipientId]) {
+    addToPending(recipientId, newMessage);
+  } else {
+    sockets[recipientId].emit("new message", newMessage);
+  }
+}
+
+async function sendNotification(other) {
   const user = await User.findById(recipientId);
   if (user.fcm) {
     const message = {
@@ -133,7 +144,8 @@ async function newMessage({ recipientId, ...other }) {
 
       notification: {
         title: other.username,
-        body: other.message
+        body: other.message,
+        image: user.profile_photo
       }
     };
 
@@ -144,13 +156,5 @@ async function newMessage({ recipientId, ...other }) {
         console.log("Successfully sent with response: ", response);
       }
     });
-  }
-
-  const newMessage = { recipientId, ...other };
-
-  if (!sockets[recipientId]) {
-    addToPending(recipientId, newMessage);
-  } else {
-    sockets[recipientId].emit("new message", newMessage);
   }
 }
