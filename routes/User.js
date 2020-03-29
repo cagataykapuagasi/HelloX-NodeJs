@@ -6,18 +6,20 @@ const {
   getUser,
   getRandomUser,
   search,
+  setFcm,
   updateAbout,
   updatePhoto,
   updatePassword,
   updateLanguage,
   remove
-} = require("../services");
+} = require("../services/User");
 const upload = require("../handlers/Multer");
 
 router.post("/login", Login);
 router.post("/register", Register);
 router.get("/random", GetRandomUser);
 router.post("/search", Search);
+router.post("/fcm", SetFcm);
 router.get("/profile", GetUser);
 router.post("/profile/update-about", UpdateAbout);
 router.post("/profile/update-password", UpdatePassword);
@@ -64,6 +66,13 @@ function Search(req, res, next) {
   console.log("search");
   search(req)
     .then(users => res.send(users))
+    .catch(message => res.status(400).send({ message }));
+}
+
+function SetFcm(req, res, next) {
+  console.log("set fcm");
+  setFcm(req)
+    .then(r => res.send(r))
     .catch(message => res.status(400).send({ message }));
 }
 

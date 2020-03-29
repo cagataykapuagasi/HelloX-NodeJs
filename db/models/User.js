@@ -17,6 +17,7 @@ const schema = new Schema(
     hash: { type: String, required: true },
     status: { type: Boolean, default: false },
     language: { type: String, default: "en", maxlength: 2 },
+    fcm: { type: String, default: null },
     about: { type: String, default: "Available", maxlength: 15 },
     email: {
       type: String,

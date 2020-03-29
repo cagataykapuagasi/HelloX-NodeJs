@@ -14,6 +14,7 @@ module.exports = {
   getUser,
   getRandomUser,
   search,
+  setFcm,
   register,
   updateAbout,
   updatePhoto,
@@ -177,4 +178,15 @@ async function search({ body: { username }, userData: { id } }) {
     },
     { salt: 0, hash: 0 }
   );
+}
+
+async function setFcm({ body: { fcm }, userData: { id } }) {
+  try {
+    const user = await User.findById(id);
+    user.fcm = fcm;
+    await user.save();
+    return Promise.resolve({ message: "Fcm was successfully updated." });
+  } catch ({ message }) {
+    return Promise.reject(message);
+  }
 }

@@ -3,10 +3,12 @@ const router = app.Router();
 const jwt = require("jsonwebtoken");
 const db = require("../db/db");
 const User = db.User;
+var FCM = require("fcm-node");
 
 let sockets = {};
 let pendingMessages = {};
 let subscribers = {};
+let fcm = new FCM(env.process.FCM);
 
 module.exports = function(io) {
   let userId = null;
@@ -40,17 +42,7 @@ module.exports = function(io) {
       delete pendingMessages[userId];
     }
 
-    socket.on("new message", ({ recipientId, ...other }) => {
-      const newMessage = { recipientId, ...other };
-
-      //console.log("alıcı:", recipientId, "gönderici: ", socket.sid);
-
-      if (!sockets[recipientId]) {
-        addToPending(recipientId, newMessage);
-      } else {
-        sockets[recipientId].emit("new message", newMessage);
-      }
-    });
+    socket.on("new message", newMessage);
 
     handleSubscription(socket);
     informToMySubscribers({ socket, status: true });
@@ -66,25 +58,25 @@ module.exports = function(io) {
   return router;
 };
 
-const addToPending = (id, message) => {
+function addToPending(id, message) {
   if (pendingMessages[id]) {
     pendingMessages[id].messages.push(message);
   } else {
     pendingMessages[id] = { messages: [] };
     pendingMessages[id].messages.push(message);
   }
-};
+}
 
-const changeStatus = async ({ id, status }) => {
+async function changeStatus({ id, status }) {
   const user = await User.findById(id);
 
   if (user) {
     user.status = status;
     await user.save();
   }
-};
+}
 
-handleSubscription = socket => {
+function handleSubscription(socket) {
   socket.on("subscribe", async id => {
     if (!subscribers[id]) {
       subscribers[id] = [socket.sid];
@@ -110,9 +102,9 @@ handleSubscription = socket => {
   });
 
   //console.log("handleSubscription", subscribers[socket.sid]);
-};
+}
 
-informToMySubscribers = ({ socket, status }) => {
+function informToMySubscribers({ socket, status }) {
   const subs = subscribers[socket.sid];
   //console.log("subsinfo", subs, status, "myid", socket.sid);
   if (subs) {
@@ -131,4 +123,35 @@ informToMySubscribers = ({ socket, status }) => {
       }
     });
   }
-};
+}
+
+async function newMessage({ recipientId, ...other }) {
+  const user = await User.findById(recipientId);
+  if (user.fcm) {
+    const message = {
+      to: user.fcm,
+      collapse_key: "your_collapse_key",
+
+      notification: {
+        title: "Title of your push notification",
+        body: "Body of your push notification"
+      }
+    };
+
+    fcm.send(message, function(err, response) {
+      if (err) {
+        console.log("Something has gone wrong!");
+      } else {
+        console.log("Successfully sent with response: ", response);
+      }
+    });
+  }
+
+  const newMessage = { recipientId, ...other };
+
+  if (!sockets[recipientId]) {
+    addToPending(recipientId, newMessage);
+  } else {
+    sockets[recipientId].emit("new message", newMessage);
+  }
+}
