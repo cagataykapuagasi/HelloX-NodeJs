@@ -99,8 +99,7 @@ async function updateAbout({ body: { about }, userData: { id } }) {
 async function updatePhoto(req) {
   const {
     userData: { id },
-    file: { path },
-    protocol
+    file: { path }
   } = req;
   const url = `https://${req.get("host")}/${path}`;
 
@@ -132,19 +131,21 @@ async function updatePassword(req) {
     userData: { id }
   } = req;
 
-  User.findById(id)
-    .then(async user => {
-      const error = updatePasswordErrors({ user, password, new_password });
-      if (error) {
-        return Promise.reject(error);
-      }
+  try {
+    const user = await User.findById(id);
 
-      const hash = user.setPassword(new_password);
-      Object.assign(user, hash);
-      await user.save();
-      return Promise.resolve({ message: "Password was updated." });
-    })
-    .catch(({ message }) => Promise.reject(message));
+    const error = updatePasswordErrors({ user, password, new_password });
+    if (error) {
+      return Promise.reject(error);
+    }
+
+    const hash = user.setPassword(new_password);
+    Object.assign(user, hash);
+    await user.save();
+    return Promise.resolve({ message: "Password was updated." });
+  } catch ({ message }) {
+    return Promise.reject(message);
+  }
 }
 
 async function updateLanguage({ userData: { id }, body: { language } }) {
