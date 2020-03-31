@@ -36,7 +36,7 @@ async function login({ username, password }) {
       reject({ password: language[user.language].password });
     }
 
-    reject({ username: language[user.language].username });
+    reject({ username: language[user.language || "en"].username });
   });
 }
 
