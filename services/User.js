@@ -33,10 +33,12 @@ async function login({ username, password }) {
 
       resolve(data);
     } else if (user) {
-      reject({ password: language[user.language].password });
+      reject({ password: language[user.language].login.password });
     }
 
-    reject({ username: language[(user && user.language) || "en"].username });
+    reject({
+      username: language[(user && user.language) || "en"].login.username
+    });
   });
 }
 
