@@ -61,7 +61,7 @@ schema.methods.generateJWT = function() {
       username: this.username
     },
     process.env.API_SECRET,
-    { expiresIn: "1m" }
+    { expiresIn: "1h" }
   );
 };
 
