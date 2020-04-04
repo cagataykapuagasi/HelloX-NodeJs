@@ -1,7 +1,7 @@
-function userHandler(user, token) {
+function userHandler(user, { token }) {
   if (user) {
-    const { hash, __v, _id, salt, ...other } = user.toJSON();
-    return { token, user: other };
+    const { hash, __v, _id, salt, refresh_token, ...other } = user.toJSON();
+    return { token, refresh_token, user: other };
   }
 }
 

@@ -29,7 +29,8 @@ async function login({ username, password }) {
 
     if (user && user.validPassword(password)) {
       const token = user.generateJWT();
-      const data = userHandler(user, token);
+      user.generateRefreshToken();
+      const data = userHandler(user, { token });
 
       resolve(data);
     } else if (user) {
@@ -76,11 +77,11 @@ async function register(req) {
   }
   try {
     const user = new User(body);
-    //{ expiresIn: 0 }
     user.setPassword(body.password);
     const token = user.generateJWT();
+    user.generateRefreshToken();
     await user.save();
-    const data = userHandler(user, token);
+    const data = userHandler(user, { token });
     return Promise.resolve(data);
   } catch (error) {
     return Promise.reject(error.message);

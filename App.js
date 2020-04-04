@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const app = express();
 const server = require("http").createServer(app);
@@ -7,7 +8,6 @@ const io = require("socket.io")(server);
 const { User, Other } = require("./routes");
 const { Chat } = require("./services");
 const jwt = require("./handlers/Jwt");
-require("dotenv").config();
 
 app.use("/uploads", express.static("uploads"));
 app.use(bodyParser.json());

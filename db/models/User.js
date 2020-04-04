@@ -29,13 +29,13 @@ const schema = new Schema(
       ],
       index: true
     },
-    salt: String
+    salt: String,
+    refresh_token: String
   },
   { timestamps: true }
 );
 
 schema.methods.setPassword = function(password) {
-  console.log(password);
   if (password.length < 5) {
     throw new Error(
       `password: '${password}' is shorter than the minimum allowed length 5`
@@ -55,18 +55,23 @@ schema.methods.validPassword = function(password) {
 };
 
 schema.methods.generateJWT = function() {
-  const today = new Date();
-  const exp = new Date(today);
-  exp.setDate(today.getDate() + 60);
-
   return jwt.sign(
     {
       id: this._id,
-      username: this.username,
-      exp: parseInt(exp.getTime() / 1000)
+      username: this.username
     },
-    process.env.API_SECRET
+    process.env.API_SECRET,
+    { expiresIn: "1m" }
   );
+};
+
+schema.methods.generateRefreshToken = function() {
+  this.refresh_token = crypto.randomBytes(16).toString("hex");
+  return { refresh_token: this.refresh_token };
+};
+
+schema.methods.validRefreshToken = function(refreshSalt) {
+  return this.refreshSalt === refreshSalt;
 };
 
 schema.plugin(uniqueValidator, { message: "is already taken." });
