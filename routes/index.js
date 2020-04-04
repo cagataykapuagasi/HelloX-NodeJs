@@ -1,7 +1,3 @@
-const User = require("./User");
-const Other = require("./Other");
+const Api = require("./Api");
 
-module.exports = {
-  User,
-  Other
-};
+module.exports = Api;

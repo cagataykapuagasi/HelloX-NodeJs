@@ -16,6 +16,7 @@ module.exports = {
   search,
   setFcm,
   register,
+  refreshToken,
   updateAbout,
   updatePhoto,
   updatePassword,
@@ -32,6 +33,7 @@ async function login({ username, password }) {
       user.generateRefreshToken();
       const data = userHandler(user, { token });
 
+      await user.save();
       resolve(data);
     } else if (user) {
       reject({ password: language[user.language].login.password });
@@ -54,6 +56,20 @@ async function getUser(req) {
 
     reject("User not found.");
   });
+}
+
+async function refreshToken({ body: { refresh_token } }) {
+  const user = await User.findOne({ refresh_token });
+
+  if (user) {
+    const token = user.generateJWT();
+    const { refresh_token } = user.generateRefreshToken();
+
+    await user.save();
+    return Promise.resolve({ token, refresh_token });
+  }
+
+  return Promise.reject("refresh_token is incorrect");
 }
 
 async function getRandomUser({ userData: { id } }) {

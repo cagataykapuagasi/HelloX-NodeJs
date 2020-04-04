@@ -1,8 +1,9 @@
-const app = require("express");
-const router = app.Router();
+const router = require("express").Router();
+
 const {
   login,
   register,
+  refreshToken,
   getUser,
   getRandomUser,
   search,
@@ -15,17 +16,11 @@ const {
 } = require("../services/User");
 const upload = require("../handlers/Multer");
 
-router.post("/login", Login);
-router.post("/register", Register);
-router.get("/random", GetRandomUser);
-router.post("/search", Search);
-router.post("/fcm", SetFcm);
-router.get("/profile", GetUser);
-router.post("/profile/update-about", UpdateAbout);
-router.post("/profile/update-password", UpdatePassword);
-router.post("/profile/update-photo", upload.single("photo"), UpdatePhoto);
-router.post("/profile/update-language", UpdateLanguage);
-router.delete("/profile", Remove);
+/* auth */
+
+router.post("/auth/login", Login);
+router.post("/auth/register", Register);
+router.post("/auth/refresh_token", RefreshToken);
 
 function Login(req, res, next) {
   console.log("login");
@@ -41,6 +36,27 @@ function Register(req, res, next) {
     .catch(message => res.status(400).send({ message }));
 }
 
+function RefreshToken(req, res, next) {
+  console.log("refresh token");
+  refreshToken(req)
+    .then(r => res.send(r))
+    .catch(message => res.status(400).send({ message }));
+}
+
+/* auth */
+
+/* user */
+
+router.get("/user/random", GetRandomUser);
+router.post("/user/search", Search);
+router.post("/user/fcm", SetFcm);
+router.get("/user/profile", GetUser);
+router.post("/user/profile/update-about", UpdateAbout);
+router.post("/user/profile/update-password", UpdatePassword);
+router.post("/user/profile/update-photo", upload.single("photo"), UpdatePhoto);
+router.post("/user/profile/update-language", UpdateLanguage);
+router.delete("/user/profile", Remove);
+
 function GetUser(req, res, next) {
   console.log("get user");
   getUser(req)
@@ -51,7 +67,7 @@ function GetUser(req, res, next) {
 function UpdateLanguage(req, res, next) {
   console.log("update language");
   updateLanguage(req)
-    .then(user => res.send(user))
+    .then(r => res.send(r))
     .catch(message => res.status(404).send({ message }));
 }
 
@@ -105,5 +121,11 @@ function Remove(req, res, next) {
     .then(r => res.send(r))
     .catch(message => res.status(404).send({ message }));
 }
+
+/* user */
+
+router.all("*", (req, res) => {
+  res.status(404).send({ message: "Not Found" });
+});
 
 module.exports = router;
