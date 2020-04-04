@@ -14,7 +14,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(jwt);
 
-app.use("/chat", Chat(io));
+app.use(Chat(io));
 app.use("/api", Api);
 
 app.all("*", (req, res) => {
