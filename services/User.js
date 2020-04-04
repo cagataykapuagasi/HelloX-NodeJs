@@ -1,7 +1,11 @@
 const fs = require("fs");
 const db = require("../db/db");
 const User = db.User;
-const { userHandler, getRandomNumber } = require("../handlers/Data");
+const {
+  userHandler,
+  getRandomNumber,
+  userHandlerWithoutToken
+} = require("../handlers/Data");
 const {
   userErrors,
   registerErrors,
@@ -46,16 +50,13 @@ async function login({ username, password }) {
 }
 
 async function getUser(req) {
-  return new Promise(async (resolve, reject) => {
-    const user = await User.findById(req.userData.id);
+  const user = await User.findById(req.userData.id);
 
-    if (user) {
-      resolve(userHandler(user));
-      return;
-    }
+  if (user) {
+    return Promise.resolve(userHandlerWithoutToken(user));
+  }
 
-    reject("User not found.");
-  });
+  return Promise.reject("User not found.");
 }
 
 async function refreshToken({ body: { refresh_token } }) {

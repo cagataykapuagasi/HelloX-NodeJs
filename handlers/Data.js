@@ -7,7 +7,7 @@ function userHandler(user, { token }) {
 
 function userHandlerWithoutToken(user) {
   if (user) {
-    const { hash, __v, _id, salt, ...other } = user.toJSON();
+    const { hash, __v, _id, salt, refresh_token, ...other } = user.toJSON();
 
     return other;
   }
