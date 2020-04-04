@@ -124,8 +124,4 @@ function Remove(req, res, next) {
 
 /* user */
 
-router.all("*", (req, res) => {
-  res.status(404).send({ message: "Not Found" });
-});
-
 module.exports = router;

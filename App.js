@@ -17,6 +17,10 @@ app.use(jwt);
 app.use("/chat", Chat(io));
 app.use("/api", Api);
 
+app.all("*", (req, res) => {
+  res.status(404).send({ message: "Not Found" });
+});
+
 server.listen(port, () => {
   console.log(`Running Port: ${port}`);
 });
