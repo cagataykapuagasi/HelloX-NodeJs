@@ -11,7 +11,7 @@ const schema = new Schema(
       unique: true,
       required: [true, "can't be blank"],
       index: true,
-      minlength: 3
+      minlength: 3,
     },
     profile_photo: { type: String, default: null },
     hash: { type: String, required: true },
@@ -25,17 +25,17 @@ const schema = new Schema(
       required: [true, "can't be blank"],
       match: [
         /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-        "Please fill a valid email address"
+        "Please fill a valid email address",
       ],
-      index: true
+      index: true,
     },
     salt: String,
-    refresh_token: String
+    refresh_token: String,
   },
   { timestamps: true }
 );
 
-schema.methods.setPassword = function(password) {
+schema.methods.setPassword = function (password) {
   if (password.length < 5) {
     throw new Error(
       `password: '${password}' is shorter than the minimum allowed length 5`
@@ -47,30 +47,30 @@ schema.methods.setPassword = function(password) {
     .toString("hex");
 };
 
-schema.methods.validPassword = function(password) {
+schema.methods.validPassword = function (password) {
   const hash = crypto
     .pbkdf2Sync(password, this.salt, 10000, 512, "sha512")
     .toString("hex");
   return this.hash === hash;
 };
 
-schema.methods.generateJWT = function() {
+schema.methods.generateJWT = function () {
   return jwt.sign(
     {
       id: this._id,
-      username: this.username
+      username: this.username,
     },
     process.env.API_SECRET,
-    { expiresIn: "1h" }
+    { expiresIn: process.env.expiresIn }
   );
 };
 
-schema.methods.generateRefreshToken = function() {
+schema.methods.generateRefreshToken = function () {
   this.refresh_token = crypto.randomBytes(16).toString("hex");
   return { refresh_token: this.refresh_token };
 };
 
-schema.methods.validRefreshToken = function(refreshSalt) {
+schema.methods.validRefreshToken = function (refreshSalt) {
   return this.refreshSalt === refreshSalt;
 };
 
